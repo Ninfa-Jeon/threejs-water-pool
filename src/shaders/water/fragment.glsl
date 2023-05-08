@@ -10,6 +10,9 @@ varying vec3 vecPos;
 varying vec3 vecNormal;
 
 varying float vElevation;
+#include <common>
+#include <packing>
+#include <shadowmap_pars_fragment>
 #include <fog_pars_fragment>
 
 struct PointLight {

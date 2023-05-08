@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lily Flower
+* source:	https://sketchfab.com/3d-models/lily-flower-e41a69403707405dbb5e0b7737cae6fa
+* author:	Michelle.Q (https://sketchfab.com/Michelle.Q)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lily Flower" (https://sketchfab.com/3d-models/lily-flower-e41a69403707405dbb5e0b7737cae6fa) by Michelle.Q (https://sketchfab.com/Michelle.Q) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
