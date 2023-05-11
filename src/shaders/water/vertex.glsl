@@ -7,11 +7,7 @@ uniform float uTime;
 
 varying vec3 vecPos;
 varying vec3 vecNormal;
-
 varying float vElevation;
-#include <common>
-#include <shadowmap_pars_vertex>
-#include <fog_pars_vertex>
 
 //	Classic Perlin 3D Noise 
 //	by Stefan Gustavson
@@ -89,11 +85,6 @@ float cnoise(vec3 P){
 }
 
 void main(){
-  #include <begin_vertex>
-  #include <worldpos_vertex>
-  #include <beginnormal_vertex>
-  #include <defaultnormal_vertex>
-
   vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
   //Elevation
@@ -110,8 +101,4 @@ void main(){
   vecNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
 
   vElevation= elevation;
-
-  #include <shadowmap_vertex>
-
-  #include <fog_vertex>
 }

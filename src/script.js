@@ -16,34 +16,50 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog("#5a5faf", 0, 8.6);
-
-gui.add(scene.fog, "near").min(0).max(30).step(0.1).name("fogNear");
-gui.add(scene.fog, "far").min(0).max(30).step(0.1).name("fogFar");
-gui.addColor(scene.fog, "color").name("fog");
 
 /**
  * Models
  */
 const gltfLoader = new GLTFLoader();
-gltfLoader.load(
-  '/models/lily_flower/scene.gltf',
-  (gltf)=>{
-    const model = gltf.scene.children[0];
-    model.position.set(5,-0.08,2);
-    model.castShadow = true;
-    scene.add(model)
-  },
-)
+let model, model2;
+gltfLoader.load("/models/lily_flower/scene.gltf", (gltf) => {
+  model = gltf.scene.children[0];
+  model.position.set(5, -0.08, 2);
+  model.castShadow = true;
+  scene.add(model);
+  model2 = model.clone();
+  model2.scale.set(0.75, 0.75, 0.75);
+  model2.position.set(3.0, -0.08, 1.8);
+  model2.castShadow = true;
+  scene.add(model2);
+});
 
 /**
- * Sky
+ * Border
  */
-const skyGeometry = new THREE.SphereGeometry(50, 25, 25);
-const material = new THREE.MeshPhongMaterial();
-const sky = new THREE.Mesh(skyGeometry, material);
-sky.material.side = THREE.BackSide;
-scene.add(sky);
+var boxGeometry = new THREE.BoxGeometry(15, 1, 1);
+var boxMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+
+var box1 = new THREE.Mesh(boxGeometry, boxMaterial);
+box1.position.z = 7;
+box1.castShadow = true;
+scene.add(box1);
+
+var box2 = new THREE.Mesh(boxGeometry, boxMaterial);
+box2.position.z = -7;
+scene.add(box2);
+
+var box3 = new THREE.Mesh(boxGeometry, boxMaterial);
+box3.position.x = -7;
+box3.rotation.y = Math.PI * 0.5;
+scene.add(box3);
+
+var box4 = new THREE.Mesh(boxGeometry, boxMaterial);
+box4.position.x = 7;
+box4.rotation.y = Math.PI * 0.5;
+scene.add(box4);
+
+gui.addColor(boxMaterial, "color").name("box");
 
 /**
  * Container base
@@ -52,24 +68,14 @@ scene.add(sky);
 //Container color
 const containerColorObject = {};
 containerColorObject.depthColor = "#ffffff";
-containerColorObject.surfaceColor = "#6a9594";
-//"#92956a";
-//"#8d687a",
+containerColorObject.surfaceColor = "#5a8c8b";
 
-const baseGeometry = new THREE.PlaneGeometry(16, 10, 512, 512);
+const baseGeometry = new THREE.PlaneGeometry(15, 15, 512, 512);
 const baseMaterial = new THREE.ShaderMaterial({
   uniforms: THREE.UniformsUtils.merge([
     THREE.UniformsLib["lights"],
     THREE.UniformsLib["shadowmap"],
     {
-      topColor: { type: "c", value: new THREE.Color(0x0077ff) },
-      bottomColor: { type: "c", value: new THREE.Color(0xffffff) },
-      offset: { type: "f", value: 33 },
-      exponent: { type: "f", value: 0.6 },
-      fogColor: { type: "c", value: scene.fog.color },
-      fogNear: { type: "f", value: scene.fog.near },
-      fogFar: { type: "f", value: scene.fog.far },
-
       opacity: { type: "f", value: 1.0 },
 
       lightIntensity: { type: "f", value: 1.0 },
@@ -92,7 +98,6 @@ const baseMaterial = new THREE.ShaderMaterial({
   vertexShader: waterVertexShader,
   fragmentShader: waterFragmentShader,
   lights: true,
-  fog: true,
 });
 const base = new THREE.Mesh(baseGeometry, baseMaterial);
 base.receiveShadow = true;
@@ -121,7 +126,7 @@ gui
  * Water
  */
 // Geometry
-const waterGeometry = new THREE.PlaneGeometry(12, 10, 512, 512);
+const waterGeometry = new THREE.PlaneGeometry(13, 13, 512, 512);
 
 //Water Color
 const waterColorObject = {};
@@ -134,14 +139,6 @@ const waterMaterial = new THREE.ShaderMaterial({
     THREE.UniformsLib["shadowmap"],
     THREE.UniformsLib["lights"],
     {
-      topColor: { type: "c", value: new THREE.Color(0x0077ff) },
-      bottomColor: { type: "c", value: new THREE.Color(0xffffff) },
-      offset: { type: "f", value: 33 },
-      exponent: { type: "f", value: 0.6 },
-      fogColor: { type: "c", value: scene.fog.color },
-      fogNear: { type: "f", value: scene.fog.near },
-      fogFar: { type: "f", value: scene.fog.far },
-
       opacity: { type: "f", value: 0.2 },
 
       lightIntensity: { type: "f", value: 1.0 },
@@ -161,9 +158,7 @@ const waterMaterial = new THREE.ShaderMaterial({
   ]),
   vertexShader: waterVertexShader,
   fragmentShader: waterFragmentShader,
-  fog: true,
   lights: true,
-  //blending: THREE.AdditiveBlending,
   transparent: true,
 });
 
@@ -171,6 +166,7 @@ const waterMaterial = new THREE.ShaderMaterial({
 const water = new THREE.Mesh(waterGeometry, waterMaterial);
 water.rotation.x = -Math.PI * 0.5;
 water.receiveShadow = true;
+water.castShadow = true;
 scene.add(water);
 
 gui.addColor(waterColorObject, "depthColor").onChange(() => {
@@ -186,14 +182,13 @@ gui.addColor(waterColorObject, "surfaceColor").onChange(() => {
 //Point light
 const light = new THREE.PointLight(0xffffff, 1);
 // We want it to be very close to our character
-light.position.set(0.0, 10, 0);
+light.position.set(0.0, 12, 0.0);
 light.castShadow = true;
 scene.add(light);
 
 //Direction light
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-// We want it to be very close to our character
-dirLight.position.set(2, 3, 0);
+dirLight.position.set(2, 7, 0);
 dirLight.castShadow = true;
 scene.add(dirLight);
 
@@ -237,8 +232,8 @@ scene.add(camera);
 // Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-controls.minDistance = 0.7;
-controls.maxDistance = 2;
+controls.minDistance = 0.3;
+controls.maxDistance = 8;
 controls.maxPolarAngle = Math.PI / 2 - 0.5;
 
 /**
@@ -263,8 +258,18 @@ const tick = () => {
   //Update water
   waterMaterial.uniforms.uTime.value = elapsedTime;
 
-  //Update water shadow
+  //Update shadow
   baseMaterial.uniforms.uTime.value = elapsedTime;
+
+  //Update model
+  if (model) {
+    model.position.y = Math.cos(elapsedTime) * 0.08 - 0.1;
+    model.position.z = 2.0 - Math.sin(elapsedTime) * 0.25;
+  }
+  if (model2) {
+    model2.position.y = Math.sin(elapsedTime) * 0.09 - 0.15;
+    model2.position.z = 1.8 - Math.cos(elapsedTime) * 0.2;
+  }
 
   // Update controls
   controls.update();
